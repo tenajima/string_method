@@ -1,5 +1,6 @@
 import numpy as np
 from point_of_string import PointOfString
+import matplotlib.pyplot as plt
 
 class ExamplePotentialModel(PointOfString):
     '''
@@ -14,8 +15,6 @@ class ExamplePotentialModel(PointOfString):
         ここではsolute_arrayの形を1*2のリストで指定する
         :param solute_array:
         '''
-        if len(solute_array) is not 2:
-            raise TypeError
         self.solute_array = np.array(solute_array)
 
     def get_potential_value(self, x=None, y=None):
@@ -29,9 +28,9 @@ class ExamplePotentialModel(PointOfString):
         :return:
         '''
         if x is None:
-            x = self.solute_array[0]
+            x = self.solute_array[0][0]
         if y is None:
-            y = self.solute_array[1]
+            y = self.solute_array[0][1]
         return (1 - x ** 2 - y **2) ** 2 + y ** 2 / (x ** 2 + y ** 2)
 
     def get_gradient(self, x=None, y=None):
@@ -40,12 +39,13 @@ class ExamplePotentialModel(PointOfString):
         :return:
         '''
         if x is None:
-            x = self.solute_array[0]
+            x = self.solute_array[0][0] + 1e-10
         if y is None:
-            y = self.solute_array[1]
+            y = self.solute_array[0][1] + 1e-10
         circle = x ** 2 + y ** 2
-        return np.array([-2 * x * (-2 * (-1 + circle) +  y**2 / circle**2),
-                          2 * y * ( 2 * (-1 + circle) + 1 / circle * (1 - y**2 / circle))])
+        return np.array([[-2 * x * (-2 * (-1 + circle) + y**2 / circle**2),
+                          2 * y * ( 2 * (-1 + circle) + 1 / circle * (1 - y**2 / circle)),
+                          0]])
 
 
     def time_development(self, dt):
@@ -56,10 +56,25 @@ class ExamplePotentialModel(PointOfString):
         '''
         self.solute_array += - self.get_gradient() * dt
 
+    def export_solute_array(self,file_name):
+        f=open(file_name, 'w')
+        for i in range(len(self.solute_array)):
+            f.write(f'{self.solute_array[i][0]:06f} {self.solute_array[i][1]:06f} {self.solute_array[i][0]:06f} \n')
+
+    def plot_contour(self, show=True):
+        x_ = np.arange(-1.2, 1.2, 0.01)
+        y_ = np.arange(-0.2, 1.2, 0.01)
+        x, y = np.meshgrid(x_, y_)
+        z = self.get_potential_value(x=x, y=y)
+        plt.contour(x, y, z, levels=np.arange(-1, 10, 0.1))
+        if show:
+            plt.show()
+
 
 
 if __name__ == '__main__':
-    example = ExamplePotentialModel([0.8, 0.8])
-    for _ in range(10000):
-        example.time_development(dt=0.001)
-    print(example.solute_array)
+    example = ExamplePotentialModel([[0.8, 0.8, 0]])
+    # for _ in range(10000):
+    #     example.time_development(dt=0.01)
+    # print(example.solute_array)
+    example.plot_contour()
