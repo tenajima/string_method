@@ -3,7 +3,6 @@
 Simplified and improved string method for computing the minimum energy paths in barrier-crossing events
 E, Ren, and Vanden-Eijnden
 J. Chem. Phys. 126, 164103  2007
-参考論文のD. Illustrative exampleの点
 
 参考論文のストリング法を実装したもの.
 
