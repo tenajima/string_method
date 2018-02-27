@@ -21,6 +21,14 @@ class PointOfString(metaclass=ABCMeta):
         '''
         raise NotImplementedError()
 
+    @abstractmethod
+    def export_solute_array(self):
+        '''
+        ログを残すための関数を実装する.
+        :return:
+        '''
+        raise NotImplementedError
+
 
 
 

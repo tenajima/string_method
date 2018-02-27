@@ -47,7 +47,6 @@ class ExamplePotentialModel(PointOfString):
                           2 * y * ( 2 * (-1 + circle) + 1 / circle * (1 - y**2 / circle)),
                           0]])
 
-
     def time_development(self, dt):
         '''
         最急降下法により1step時間発展させる

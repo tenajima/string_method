@@ -1,12 +1,10 @@
 import numpy as np
 import time
 import os
-from abc import ABCMeta, abstractmethod
 import shutil
+from scipy.interpolate import interp1d
 
-
-
-class String(metaclass=ABCMeta):
+class String(object):
     def __init__(self, points, work_dir='', count=0):
         self.work_dir = work_dir
         self.points = []
@@ -62,13 +60,33 @@ class String(metaclass=ABCMeta):
                     min_d = d
                     oscillation_count=0
 
-    @abstractmethod
     def interpolate(self):
-        raise NotImplementedError
+        s = [0.0]
+        alpha = []
+        for i in range(1, self.number_of_points):
+            length = 0.0
+            for solute_num in range(self.solute_sum):
+                for coordinate in range(3):
+                    length += (self.Points[i].solute_array[solute_num][coordinate] -
+                               self.Points[i - 1].solute_array[solute_num][coordinate]) ** 2.0
+            s.append(length ** 0.50 + s[i - 1])
+        for i in range(self.number_of_points):
+            alpha.append(s[i] / s[self.number_of_points - 1])
+
+        for solute_num in range(self.solute_sum):
+            for coordinate in range(3):
+                measure = []
+                for i in range(self.number_of_points):
+                    measure.append(self.Points[i].solute_array[solute_num][coordinate])
+                cubicInterp = interp1d(alpha, measure, kind='cubic')
+
+                for i in range(self.number_of_points):
+                    self.Points[i].solute_array[solute_num][coordinate] = cubicInterp(i / (self.number_of_points - 1))
 
 
     def check_log_dir(self):
         debug = False
+        self.make_new_log = True
         self.top_dir_name = f'{self.work_dir}point_num_{self.number_of_points}/'
         if os.path.exists(self.top_dir_name):
             print('そのストリングのデータはあります.削除しますか?(新しく作り直すなら:yes)')
@@ -99,7 +117,7 @@ class String(metaclass=ABCMeta):
         config_file.write('calculation config\n')
         config_file.write(f'Number of point: {self.number_of_points}\n')
         for i in range(self.number_of_points):
-            filename = (f'solute_num_{i:02d}.dat')
+            filename = (f'solute_num_{i:02d}.pdb')
             self.Points[i].export_solute_array(file_name=f'{self.top_dir_name}data_{count}/{filename}')
 
 
