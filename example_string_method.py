@@ -3,31 +3,6 @@ import numpy as np
 from example_potential_model import ExamplePotentialModel
 import matplotlib.pyplot as plt
 
-
-class ExampleString(String):
-    def interpolate(self):
-        s = [0.0]
-        alpha = []
-        for i in range(1, self.number_of_points):
-            length = 0.0
-            for solute_num in range(self.solute_sum):
-                for coordinate in range(3):
-                    length += (self.Points[i].solute_array[solute_num][coordinate] -
-                               self.Points[i - 1].solute_array[solute_num][coordinate]) ** 2.0
-            s.append(length ** 0.50 + s[i - 1])
-        for i in range(self.number_of_points):
-            alpha.append(s[i] / s[self.number_of_points - 1])
-
-        for solute_num in range(self.solute_sum):
-            for coordinate in range(3):
-                measure = []
-                for i in range(self.number_of_points):
-                    measure.append(self.Points[i].solute_array[solute_num][coordinate])
-                cubicInterp = interp1d(alpha, measure, kind='cubic')
-
-                for i in range(self.number_of_points):
-                    self.Points[i].solute_array[solute_num][coordinate] = cubicInterp(i / (self.number_of_points - 1))
-
 def plot_string(dir_name, number_of_point):
     x_array = np.zeros(number_of_point)
     y_array = np.zeros_like(x_array)
