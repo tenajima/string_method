@@ -117,7 +117,7 @@ class String(object):
         config_file.write('calculation config\n')
         config_file.write(f'Number of point: {self.number_of_points}\n')
         for i in range(self.number_of_points):
-            filename = (f'solute_num_{i:02d}.pdb')
+            filename = (f'solute_num_{i:02d}.dat')
             self.Points[i].export_solute_array(file_name=f'{self.top_dir_name}data_{count}/{filename}')
 
 
